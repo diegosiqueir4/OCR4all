@@ -1,7 +1,6 @@
 package de.uniwue.feature;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.HashSet;
 import java.util.Vector;
 
 /**
@@ -21,24 +20,27 @@ public class OpenCVStatus {
 			LIBRARIES = ClassLoader.class.getDeclaredField("loadedLibraryNames");
 			LIBRARIES.setAccessible(true);
 			Object libraries = LIBRARIES.get(ClassLoader.getSystemClassLoader());
-			
-			if(libraries instanceof Vector) {
+
+			String[] libraryEntries = null;
+			if (libraries instanceof Vector) {
 				// libraries is of type Vector in java 9 and below
-				for (String libpath : ((Vector<String>) libraries).toArray(new String[] {}))
-					if (libpath.contains(org.opencv.core.Core.NATIVE_LIBRARY_NAME))
-						return true;
-			}else if (libraries instanceof Map) {
+				libraryEntries = ((Vector<String>) libraries).toArray(new String[] {});
+			} else if (libraries instanceof HashSet) {
 				// libraries is of type HashMap in java 10 and above
-				libraries = (HashMap<String,String>) LIBRARIES.get(ClassLoader.getSystemClassLoader());
-				for(Map.Entry<String, String> entry : ((HashMap<String,String>) libraries).entrySet()) {
-					if (entry.getKey().contains(org.opencv.core.Core.NATIVE_LIBRARY_NAME))
-						return true;
-				}
+				libraryEntries = ((HashSet<String>) libraries).toArray(new String[] {});
+			} else {
+				// Unknown object type for ClassLoader "loadedLibraryNames"
+				// (Might have been changed in a future java version)
+				throw new UnsupportedOperationException("Unkown object type for ClassLoader \"loadedLibraryNames\""
+						+ " (Might have been changed in a future java version)");
 			}
+
+			for (String libpath : libraryEntries)
+				if (libpath.contains(org.opencv.core.Core.NATIVE_LIBRARY_NAME))
+					return true;
 
 		} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
 			e.printStackTrace();
-			System.out.println("Nooope");
 			return false;
 		}
 		return false;
