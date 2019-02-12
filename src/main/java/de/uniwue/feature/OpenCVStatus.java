@@ -1,5 +1,7 @@
 package de.uniwue.feature;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Vector;
 
 /**
@@ -16,15 +18,27 @@ public class OpenCVStatus {
 	public static boolean isLoaded() {
 		try {
 			final java.lang.reflect.Field LIBRARIES;
-			Vector<String> libraries;
 			LIBRARIES = ClassLoader.class.getDeclaredField("loadedLibraryNames");
 			LIBRARIES.setAccessible(true);
-			libraries = (Vector<String>) LIBRARIES.get(ClassLoader.getSystemClassLoader());
-			for (String libpath : libraries.toArray(new String[] {}))
-				if (libpath.contains(org.opencv.core.Core.NATIVE_LIBRARY_NAME))
-					return true;
+			Object libraries = LIBRARIES.get(ClassLoader.getSystemClassLoader());
+			
+			if(libraries instanceof Vector) {
+				// libraries is of type Vector in java 9 and below
+				for (String libpath : ((Vector<String>) libraries).toArray(new String[] {}))
+					if (libpath.contains(org.opencv.core.Core.NATIVE_LIBRARY_NAME))
+						return true;
+			}else if (libraries instanceof Map) {
+				// libraries is of type HashMap in java 10 and above
+				libraries = (HashMap<String,String>) LIBRARIES.get(ClassLoader.getSystemClassLoader());
+				for(Map.Entry<String, String> entry : ((HashMap<String,String>) libraries).entrySet()) {
+					if (entry.getKey().contains(org.opencv.core.Core.NATIVE_LIBRARY_NAME))
+						return true;
+				}
+			}
+
 		} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
 			e.printStackTrace();
+			System.out.println("Nooope");
 			return false;
 		}
 		return false;
