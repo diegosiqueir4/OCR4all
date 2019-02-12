@@ -12,7 +12,9 @@ public class LibraryLoader implements ServletContextListener {
 
     @Override
     public void contextInitialized(ServletContextEvent arg0) {
-        // Load OpenCV library
-        nu.pattern.OpenCV.loadShared();
+    	if(!OpenCVStatus.isLoaded()) {
+			// Load OpenCV library
+			nu.pattern.OpenCV.loadShared();
+    	}
     }
 }
