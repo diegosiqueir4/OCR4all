@@ -42,7 +42,8 @@ public class OverviewController {
         if (overviewHelper == null) {
             overviewHelper = new OverviewHelper(
                 session.getAttribute("projectDir").toString(),
-                session.getAttribute("imageType").toString()
+                session.getAttribute("imageType").toString(),
+                session.getAttribute("processingMode").toString()
             );
             session.setAttribute("overviewHelper", overviewHelper);
         }
