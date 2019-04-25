@@ -152,6 +152,7 @@ public class OverviewController {
     public @ResponseBody boolean checkDir(
                 @RequestParam("projectDir") String projectDir,
                 @RequestParam("imageType") String imageType,
+                @RequestParam("processingMode") String processingMode,
                 @RequestParam("resetSession") Boolean resetSession,
                 HttpSession session, HttpServletResponse response, HttpServletRequest request
             ) {
@@ -167,6 +168,7 @@ public class OverviewController {
         HttpSession newSession = request.getSession();
         newSession.setAttribute("projectDir", projectDir);
         newSession.setAttribute("imageType", imageType);
+        newSession.setAttribute("processingMode", imageType);
         // Determine and add the name of the project to the session as well (to display on each page)
         String[] projectDirParts = projectDir.substring(0, projectDir.length() - 1).split(Pattern.quote(File.separator));
         newSession.setAttribute("projectName", projectDirParts[projectDirParts.length - 1]);
